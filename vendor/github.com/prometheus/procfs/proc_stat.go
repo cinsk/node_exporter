@@ -30,7 +30,7 @@ import "C"
 // - https://github.com/prometheus/node_exporter/issues/52
 // - https://github.com/prometheus/procfs/pull/2
 // - http://stackoverflow.com/questions/17410841/how-does-user-hz-solve-the-jiffy-scaling-issue
-userHZ := clock_tick()
+var userHZ = clock_tick()
 
 // ProcStat provides status information about the process,
 // read from /proc/[pid]/stat.
@@ -97,10 +97,10 @@ type ProcStat struct {
 	fs FS
 }
 
-func clock_tick() int {
+func clock_tick() float64 {
         var sc_clk_tck C.long
         sc_clk_tck = C.sysconf(C._SC_CLK_TCK)
-        return int(sc_clk_tck)
+        return float64(sc_clk_tck)
 }
 
 // NewStat returns the current status information of the process.
