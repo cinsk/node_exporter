@@ -7,6 +7,14 @@ import (
 	"os"
 )
 
+/*
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <stdlib.h>
+*/
+import "C"
+
 // Originally, this USER_HZ value was dynamically retrieved via a sysconf call
 // which required cgo. However, that caused a lot of problems regarding
 // cross-compilation. Alternatives such as running a binary to determine the
@@ -22,7 +30,7 @@ import (
 // - https://github.com/prometheus/node_exporter/issues/52
 // - https://github.com/prometheus/procfs/pull/2
 // - http://stackoverflow.com/questions/17410841/how-does-user-hz-solve-the-jiffy-scaling-issue
-const userHZ = 100
+userHZ := clock_tick()
 
 // ProcStat provides status information about the process,
 // read from /proc/[pid]/stat.
@@ -87,6 +95,12 @@ type ProcStat struct {
 	RSS int
 
 	fs FS
+}
+
+func clock_tick() int {
+        var sc_clk_tck C.long
+        sc_clk_tck = C.sysconf(C._SC_CLK_TCK)
+        return int(sc_clk_tck)
 }
 
 // NewStat returns the current status information of the process.
